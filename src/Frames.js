@@ -1,20 +1,32 @@
-function Frames(ip, sub) {
-  const url = (ip, sub) => `ws://${ip}:8888${sub}`;
+function Frames(ip, setData, setSrc) {
+  const url_frames = (ip) => `ws://${ip}:8888/frames`;
+  const url_twod = (ip) => `ws://${ip}:8888/twod`;
 
   const framesObj = {
-    socket: null,
+    socket_frames: null,
+    socket_twod: null,
 
     start: () => {
-      framesObj.socket = new WebSocket(url(ip, sub));
-      framesObj.socket.onmessage = function(event) {
+      framesObj.socket_frames = new WebSocket(url_frames(ip));
+      framesObj.socket_twod = new WebSocket(url_twod(ip));
+      framesObj.socket_frames.onmessage = function (event) {
+        framesObj.store(JSON.parse(event.data));
+      };
+      framesObj.socket_twod.onmessage = function (event) {
         framesObj.show(JSON.parse(event.data));
-      }
+      };
     },
 
-    show: frame => console.log(frame),
-  }
+    show: (frame) => {
+      setSrc("data:image/pnjpegg;base64," + frame.src);
+    },
 
-  return framesObj
+    store: (frame) => {
+      setData(frame);
+    },
+  };
+
+  return framesObj;
 }
 
 export default Frames;
