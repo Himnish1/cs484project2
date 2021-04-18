@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import Frames from "./Frames";
 import configData from "./config.json";
+import axios from 'axios';
 
 function App() {
   const [src, setSrc] = useState();
   const [data, setData] = useState();
+  const [test, setTest] = useState();
   useEffect(() => {
     Frames(configData.prodIP, setData, setSrc).start();
+    // axios.get('ws://127.0.0.1:4444/twod')
+    //   .then(dat => {
+    //     console.log(dat);
+    //   });
   }, []);
 
   // console.log(data);
