@@ -1,72 +1,64 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Frames from "./Frames";
+import Exercises from "./Exercises";
 import configData from "./config.json";
+import moment from "moment";
 
 function App() {
-  const exercises = ["arm_circles", "jumping_jacks", "knee_drives"];
-  let twods = [];
-  exercises.forEach((exercise) => {
-    const twod = require(`./recordings_json/twod/${exercise}.json`);
-    twods.push(twod);
-  });
-  const [src, setSrc] = useState();
-  const [data, setData] = useState();
-  const [frame_index, setFrameIndex] = useState(0);
+  const [live, setLive] = useState();
+  const [exercise, setExercise] = useState();
+  const [start, setStart] = useState(false);
+  const [liveData, setLiveData] = useState();
+  const [exeData, setExeData] = useState();
+  const [start_time, setStartTime] = useState();
 
   useEffect(() => {
-    Frames(configData.prodIP, setData, setSrc).start();
+    Frames(configData.prodIP, setLiveData, setLive).start();
+    Exercises(setExeData, setExercise).start();
+  }, []);
 
-    const interval = setInterval(() => {
-      setFrameIndex(frame_index + 1);
-    }, 300);
-    return () => clearInterval(interval);
-  }, [frame_index]);
-
-  // console.log(frame_index);
-  // console.log(data);
-  // console.log(data && data.people ? Object.keys(data.people) : null);
+  useEffect(() => {
+    console.log(liveData);
+    if (liveData && liveData.people) {
+      Object.keys(liveData.people).forEach((person) => {
+        const pos = liveData.people[person].avg_position;
+        const keypoints = liveData.people[person].keypoints;
+        if (keypoints.RElbow && keypoints.LElbow) {
+          if (
+            keypoints.RElbow[1] < 0 &&
+            keypoints.LElbow[1] < 0 &&
+            pos[2] <= 3350 &&
+            !start
+          ) {
+            setStart(true);
+            setStartTime(Date.now());
+          }
+        }
+      });
+    } else {
+      setStart(false);
+    }
+  }, [liveData, start]);
+  const timer = moment().diff(start_time, "seconds");
+  if (timer === 30) {
+    setStart(0);
+    setStartTime(null);
+  }
 
   return (
-    <div className="App">
-      {exercises.map((exercise, index) => (
-        <div key={index}>
-          <div>{exercise} Recording</div>
-          <img
-            src={`data:image/pnjpegg;base64,${
-              twods[index][frame_index % twods[index].length].src
-            }`}
-            alt={exercise}
-          />
-        </div>
-      ))}
-      <div>Live Feed</div>
-      <img src={src} alt="live_feed" />
-      {data && data.people
-        ? Object.keys(data.people).map((person, index) => {
-            // console.log(data.people[person]);
-            const keypoints = data.people[person].keypoints;
-            if (keypoints.RElbow && keypoints.LElbow)
-              return (
-                <div key={index}>
-                  <div>Person {person}</div>
-                  <div>X-Coordinate: {keypoints.RElbow[0].toFixed(2)}</div>
-                  <div>Y-Coordinate: {keypoints.RElbow[1].toFixed(2)}</div>
-                  <div>Z-Coordinate: {keypoints.RElbow[2].toFixed(2)}</div>
-                  <div>
-                    {keypoints.RElbow[1] < 0 && keypoints.LElbow[1] < 0
-                      ? "Both Arms Raised!"
-                      : keypoints.RElbow[1] < 0
-                      ? "Right Arm Raised!"
-                      : keypoints.LElbow[1] < 0
-                      ? "Left Arm Raised!"
-                      : "Nothing"}
-                  </div>
-                </div>
-              );
-            return null;
-          })
-        : null}
+    <div className="view">
+      <img className="live" src={live} alt="live feed" />
+      {start ? (
+        <>
+          {start_time ? <div>{30 - timer}</div> : null}
+          <img className="exercise" src={exercise} alt="exercise feed" />{" "}
+        </>
+      ) : (
+        <h1>
+          Raise your hands straight up like you're going to touch the sky.
+        </h1>
+      )}
     </div>
   );
 }

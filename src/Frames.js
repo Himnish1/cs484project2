@@ -1,4 +1,4 @@
-function Frames(ip, setData, setSrc) {
+function Frames(ip, setData, setLive) {
   const url_frames = (ip) => `ws://${ip}:8888/frames`;
   const url_twod = (ip) => `ws://${ip}:8888/twod`;
 
@@ -18,7 +18,7 @@ function Frames(ip, setData, setSrc) {
     },
 
     show: (frame) => {
-      setSrc("data:image/pnjpegg;base64," + frame.src);
+      setLive("data:image/pnjpegg;base64," + frame.src);
     },
 
     store: (frame) => {
