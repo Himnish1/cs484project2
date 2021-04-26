@@ -46,6 +46,7 @@ function App() {
   }, [liveData, message, start]);
   
   const timer = moment().diff(start_time, "seconds");
+
   if (timer === 30) {
     setStart(0);
     setStartTime(null);
@@ -58,10 +59,10 @@ function App() {
       start
         ? 
           <>
-            {start_time ? <div>{30 - timer}</div> : null}
+            {start_time ? <div id="timer">{30 - timer}</div> : null}
             <img className="exercise" src={exercise} alt="exercise feed" />
           </>
-        : <h1>{message}</h1>
+        : <h1 id="message">{message}</h1>
       }   
     </div>
   );
