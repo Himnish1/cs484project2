@@ -12,6 +12,8 @@
 /build
 
 /src/data
+/src/recordings
+/src/recordings_json
 
 # misc
 .DS_Store
