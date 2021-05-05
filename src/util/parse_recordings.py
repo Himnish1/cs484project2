@@ -3,16 +3,19 @@ import os
 import json
 
 url = "../recordings/"
-exercise = "knee_drives"
+exercise = "arm_circles"
 
 parsed_frames = []
 parsed_twod = []
 pkl_frames = os.listdir(url + exercise)
+pkl_frames.sort()
 
 for frame in pkl_frames:
+    # print(frame[:-4])
     frame_data = pd.read_pickle(url + exercise + "/" + frame)
     parsed_frames.append(json.loads(frame_data["frame"]))
     parsed_twod.append(json.loads(frame_data["twod"]))
+
 
 # print(parsed_frames[-1]["ts"] - parsed_frames[0]["ts"])
 
